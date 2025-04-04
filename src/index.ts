@@ -42,7 +42,7 @@ const createWindow = (): void => {
   mainWindow.on('closed', function () {
     mainWindow = null
   });
-
+  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -96,20 +96,23 @@ if (!gotTheLock) {
   })
 }
 
-async function DeepLink(line:string)
-{
-  const url = new URL(line);
-  if (url && url.host == "import-remote-profile") {
-    const configURL = url.searchParams.get("url")
-    const configName = decodeURIComponent(url.hash.slice(1)) || (new Date()).getTime().toString(36);
-    if (configURL) {
-      await createConfig(configURL, configName)
-      await SetConfigMode(configName, InBoundMode.TUN);
-      mainWindow?.webContents.send("get-configs", await getConfigs(), configName)
+async function DeepLink(line: string) {
+  try {
+    const url = new URL(line);
+    if (url.host == "import-remote-profile") {
+      const configURL = url.searchParams.get("url")
+      const configName = decodeURIComponent(url.hash.slice(1)) || (new Date()).getTime().toString(36);
+      if (configURL) {
+        await createConfig(configURL, configName)
+        await SetConfigMode(configName, InBoundMode.TUN);
+        mainWindow?.webContents.send("get-configs", await getConfigs(), configName)
+      }
+      else {
+        mainWindow?.webContents.send("sing-log", `[ERROR] Invalid url: ${url}`)
+      }
     }
-    else {
-      mainWindow?.webContents.send("sing-log", `[ERROR] Invalid url: ${url}`)
-    }
+  } catch (err) {
+    console.log(`${Date().toString()}: ${err}`);
   }
 }
 
@@ -126,8 +129,14 @@ ipcMain.on('delete-config', async (_, name: string) => {
   }
 })
 
-ipcMain.on('sing-runner', async (_,config:string) => {
+ipcMain.on('sing-runner', async (_, config: string) => {
   singBoxManager.isRunning() ? singBoxManager.stop() : singBoxManager.start(config);
+})
+
+ipcMain.on('getVersion', (_, config: string) => {
+  if (mainWindow) {
+    mainWindow.webContents.send('getVersion', app.getVersion())
+  }
 })
 
 singBoxManager.onLog((data) => {

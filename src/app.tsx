@@ -9,6 +9,7 @@ function App() {
   const [configs, setConfigs] = useState<string[]>([]);
   const [status, setStatus] = useState<SingBoxStatus>('stopped');
   const [logs, setLogs] = useState<{ Time: string, Text: string }[]>([]);
+  const [appVersion,setAppVersion] = useState("");
 
 
   const actions: { name: string, fn: () => void }[] =
@@ -37,13 +38,18 @@ function App() {
     const offStatus = window.electron.ipcRenderer.on("sing-status", (status: SingBoxStatus) => {
       setStatus(status)
     });
-    
+    const offVersion = window.electron.ipcRenderer.on("getVersion", (version: string) => {
+      setAppVersion(version)
+    });
+
+    window.electron.ipcRenderer.sendMessage("getVersion")
     window.electron.ipcRenderer.sendMessage("get-configs")
 
     return () => {
       offLog()
       offProfiles()
       offStatus()
+      offVersion()
     };
   }, []);
 
@@ -66,7 +72,9 @@ function App() {
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden">
       {/* Заголовок и управление */}
       <div className="flex justify-between items-center p-6 border-b bg-white dark:bg-gray-800 dark:border-gray-700">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">PakiBox</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          PakiBox <span className="text-xs text-gray-400 dark:text-gray-200">{appVersion}</span>
+        </h1>
         <div className="flex gap-3">
           <button
             className={`px-4 py-2 rounded ${statusConfig[status].bg} text-white hover:opacity-90`}
