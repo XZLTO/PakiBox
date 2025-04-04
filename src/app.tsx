@@ -25,7 +25,7 @@ function App() {
     setLogs(prevLogs => [
       { Time: new Date().toLocaleTimeString(), Text: log },
       ...prevLogs
-    ]);
+    ].slice(0, 500));
   }
 
   useEffect(() => {
