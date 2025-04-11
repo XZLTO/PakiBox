@@ -1,6 +1,6 @@
 {
   "name": "paki-box",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "ui for sing-box.",
   "main": ".webpack/main",
   "scripts": {

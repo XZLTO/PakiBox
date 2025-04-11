@@ -66,6 +66,7 @@ app.on('activate', () => {
   }
 });
 
+let configName: string | null = null;
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -100,10 +101,14 @@ async function DeepLink(line: string) {
     const url = new URL(line);
     if (url.host == "import-remote-profile") {
       const configURL = url.searchParams.get("url")
-      const configName = decodeURIComponent(url.hash.slice(1)) || (new Date()).getTime().toString(36);
+      const hashName = decodeURIComponent(url.hash.slice(1)) || (new Date()).getTime().toString(36);
+
       if (configURL) {
+        configName = hashName;
         await createConfig(configURL, configName)
         await SetConfigMode(configName, InBoundMode.TUN);
+
+        singBoxManager.start(configName);
         mainWindow?.webContents.send("get-configs", await getConfigs(), configName)
       }
       else {
@@ -117,14 +122,18 @@ async function DeepLink(line: string) {
 
 ipcMain.on('get-configs', async () => {
   if (mainWindow) {
-    mainWindow.webContents.send('get-configs', await getConfigs(), null)
+    mainWindow.webContents.send('get-configs', await getConfigs(), configName)
   }
 })
 
 ipcMain.on('delete-config', async (_, name: string) => {
   await deleteConfig(name)
+
+  if (name == configName)
+    configName = null;
+
   if (mainWindow) {
-    mainWindow.webContents.send('get-configs', await getConfigs(), null)
+    mainWindow.webContents.send('get-configs', await getConfigs(), configName)
   }
 })
 
