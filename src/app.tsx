@@ -9,7 +9,7 @@ function App() {
   const [configs, setConfigs] = useState<string[]>([]);
   const [status, setStatus] = useState<SingBoxStatus>('stopped');
   const [logs, setLogs] = useState<{ Time: string, Text: string }[]>([]);
-  const [appVersion,setAppVersion] = useState("");
+  const [appVersion, setAppVersion] = useState("");
 
 
   const actions: { name: string, fn: () => void }[] =
@@ -80,7 +80,7 @@ function App() {
             className={`px-4 py-2 rounded ${statusConfig[status].bg} text-white hover:opacity-90`}
             onClick={() => {
               if (status != 'starting')
-                if(configs.includes(activeConfig))
+                if (configs.includes(activeConfig))
                   window.electron.ipcRenderer.sendMessage("sing-runner", activeConfig)
                 else
                   Log("\x1b[31m[Error]\x1b[0m:Конфиг не выбран!")
@@ -97,7 +97,7 @@ function App() {
           <section className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col gap-4 h-full overflow-hidden">
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Активный конфиг:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Активный профиль:</p>
               <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded text-sm truncate dark:text-blue-200">
                 {activeConfig}
               </div>
@@ -109,8 +109,8 @@ function App() {
                 <button
                   key={i}
                   className={`w-full text-left p-2 rounded cursor-pointer truncate ${activeConfig === profile
-                      ? 'bg-blue-100 dark:bg-blue-900'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                    ? 'bg-blue-100 dark:bg-blue-900'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                     } dark:text-gray-200`}
                   onClick={() => { setActiveConfig(profile); Log("Change profile to: " + profile) }}
                 >
@@ -172,7 +172,6 @@ function App() {
 function render() {
   const root = ReactDOM.createRoot(document.getElementById("app"));
   root.render(<App />);
-
 }
 
 render();
